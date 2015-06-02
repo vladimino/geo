@@ -2,17 +2,23 @@
 
 namespace Vladimino\Geo\Client;
 
-
 use Vladimino\Geo\Provider\GeoProviderFactory;
 
 class GeoClient
 {
-
+    /**
+     * @var string
+     */
     protected $sProviderName;
     /**
      * @var \Vladimino\Geo\Provider\GeoProviderInterface;
      */
     protected $oProvider;
+
+    /**
+     * @var \Vladimino\Geo\Entity\ResultCollection;
+     */
+    protected $oResults;
 
     /**
      * @param string $sProviderName
@@ -27,24 +33,29 @@ class GeoClient
      */
     private function getProviderObject()
     {
-        if (is_null($this->oProvider)) {
-            $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
+        try {
+            if (is_null($this->oProvider)) {
+                $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
+            }
+
+            return $this->oProvider;
+
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            die;
         }
 
-        return $this->oProvider;
     }
 
     /**
      * @param string $sLocation
      * @return \Vladimino\Geo\Entity\ResultCollection
      */
-    public  function getResultsByLocation($sLocation)
+    public function getResultsByLocation($sLocation)
     {
-        /**
-         * @var \Vladimino\Geo\Entity\ResultCollection;
-         */
-        $oResult = $this->getProviderObject()->getResultsByLocation($sLocation);
-        return $oResult;
+        $this->oResults = $this->getProviderObject()->getResultsByLocation($sLocation);
+        return $this->oResults;
     }
+
 
 } 
