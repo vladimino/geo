@@ -23,10 +23,14 @@ class GeoClient
      */
     const NAME = 'GeoCoder Console Application';
 
+    // TODO: Implement Getter & Setter
+
     /**
      * @var string
      */
     protected $sProviderName = 'google';
+
+    // TODO: Implement Getter & Setter
 
     /**
      * @var string
@@ -63,7 +67,7 @@ class GeoClient
     protected $aLongOptions = [
         "location:",
         "provider:",
-        "format:",
+        "format:", // TODO: Implement Format handling
         "help"
     ];
 
@@ -148,6 +152,7 @@ class GeoClient
     protected function printGeoResults()
     {
 
+        // TODO: Implement enviroment check
         //if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         //    echo 'This is a server using Windows!';
         //} else {
