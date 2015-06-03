@@ -7,6 +7,11 @@ use Vladimino\Geo\Provider\GeoProviderFactory;
 class GeoClient
 {
     /**
+     * Version
+     */
+    const VERSION = '0.1';
+
+    /**
      * @var string
      */
     protected $sProviderName;
@@ -41,8 +46,7 @@ class GeoClient
             return $this->oProvider;
 
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
-            die;
+            die($e->getMessage());
         }
 
     }
@@ -55,6 +59,22 @@ class GeoClient
     {
         $this->oResults = $this->getProviderObject()->getResultsByLocation($sLocation);
         return $this->oResults;
+    }
+
+    public function printResults()
+    {
+        if ($this->oResults) {
+
+            /**
+             * @var \Vladimino\Geo\Entity\Result $result
+             */
+            foreach ($this->oResults as $oResult) {
+                echo $oResult->city . "\n";
+            }
+
+        } else {
+            echo "Results not found\n";
+        }
     }
 
 

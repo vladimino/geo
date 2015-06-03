@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Vladimino\\Geo\\": "src/"
+            "Vladimino\\Geo": "src/"
         }
     },
     "autoload-dev": {

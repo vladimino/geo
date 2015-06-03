@@ -1,34 +1,14 @@
 <?php
 
-require __DIR__ . "/../../../SplClassLoader.php";
-
-/**
- * @var \SplClassLoader
- */
-$oClassLoader = new \SplClassLoader();
-$oClassLoader->register();
+require __DIR__ . "/init.php";
 
 use Vladimino\Geo\Client\GeoClient;
 
 /**
  * @var \Vladimino\Geo\Client\GeoClient
  */
-$oClient = new GeoClient('google2');
+$oClient = new GeoClient('google');
+$oClient->getResultsByLocation('Oranienstraße 164, 10969, Berlin Germany');
+$oClient->printResults();
 
-/**
- * @var \Vladimino\Geo\Entity\ResultCollection $results
- */
-$results = $oClient->getResultsByLocation('Oranienstraße 164, 10969, Berlin Germany');
 
-if ($results) {
-
-    /**
-     * @var \Vladimino\Geo\Entity\Result $result
-     */
-    foreach ($results as $result) {
-        echo $result->city . "\n";
-    }
-
-} else {
-    echo "Results not found\n";
-}

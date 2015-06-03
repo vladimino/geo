@@ -6,15 +6,33 @@ use Vladimino\Geo\Entity\Result;
 use Vladimino\Geo\Entity\ResultCollection;
 
 /**
- * The implementation is responsible for resolving the id of the city from the
- * given city name (in this simple case via an array of CityName => id). The second
- * responsibility is to sort the returning result from the partner service in whatever
- * way.
+ * The implementation for Google Geocoding API provider.
+ *
+ * @url https://developers.google.com/maps/documentation/geocoding/
  *
  * @author vladimino
  */
-class GoogleGeoProvider implements GeoProviderInterface
+class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
 {
+    /**
+     * Returns the name of the Provider.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return 'google';
+    }
+
+    /**
+     * Returns the name of for the section in configuration file.
+     *
+     * @return string
+     */
+    public function getConfigSection()
+    {
+        return 'geocoding';
+    }
 
     /**
      * @param string $sLocation String to geocode.
@@ -24,6 +42,7 @@ class GoogleGeoProvider implements GeoProviderInterface
      */
     public function getResultsByLocation($sLocation)
     {
+        $this->setLocation($sLocation);
         $res1 = new Result();
         $res1->city = 'city1';
 
@@ -34,4 +53,19 @@ class GoogleGeoProvider implements GeoProviderInterface
 
         return $collection;
     }
-} 
+
+    /**
+     * Location — The street address that you want to geocode, in the format
+     * used by the national postal service of the country concerned.
+     * Additional address elements such as business names and unit,
+     * suite or floor numbers should be avoided.
+     * https://maps.googleapis.com/maps/api/geocode/json?address=Oranienstra%C3%9Fe%20164,%2010969,%20Berlin%20Germany&key=AIzaSyB9Ylo5ZLytB0a-wlFnGgeXGK5Y9Ll4p2M
+     * @param string $sLocation
+     */
+    private function makeQuery($sLocation)
+    {
+
+    }
+
+
+}
