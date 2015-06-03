@@ -6,7 +6,7 @@ use Vladimino\Geo\Entity\Result;
 use Vladimino\Geo\Entity\ResultCollection;
 
 /**
- * The implementation for Google Geocoding API provider.
+ * GeoProviderInterface implementation for Google Geocoding API provider.
  *
  * @url https://developers.google.com/maps/documentation/geocoding/
  *
@@ -37,12 +37,17 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     /**
      * @param string $sLocation String to geocode.
      *
-     * @return \Vladimino\Geo\Entity\ResultCollection
-     * @throws \InvalidArgumentException if string is invalid
+     * @return \Vladimino\Geo\Entity\ResultCollection|null
      */
     public function getResultsByLocation($sLocation)
     {
         $this->setLocation($sLocation);
+        $aResults = $this->makeQuery();
+
+        if(is_null($aResults)){
+            return null;
+        }
+
         $res1 = new Result();
         $res1->city = 'city1';
 
@@ -55,16 +60,46 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
-     * Location — The street address that you want to geocode, in the format
-     * used by the national postal service of the country concerned.
-     * Additional address elements such as business names and unit,
-     * suite or floor numbers should be avoided.
-     * https://maps.googleapis.com/maps/api/geocode/json?address=Oranienstra%C3%9Fe%20164,%2010969,%20Berlin%20Germany&key=AIzaSyB9Ylo5ZLytB0a-wlFnGgeXGK5Y9Ll4p2M
-     * @param string $sLocation
+     * @return array|null
      */
-    private function makeQuery($sLocation)
-    {
 
+    private function makeQuery()
+    {
+        /**
+         * @var string
+         */
+        $sUrl = $this->buildApiUrl();
+
+        /**
+         * @var array
+         */
+        $aParams = array(
+            'address' => $this->getLocation(),
+            'key' => $this->getConfig('api_key')
+        );
+
+        /**
+         * @var string
+         */
+        $sResult = file_get_contents($sUrl . '?' . http_build_query($aParams));
+
+        /**
+         * @var array
+         */
+        $aResult = json_decode($sResult, true);
+
+        return (isset($aResult['results'])) ? $aResult['results'] : null;
+    }
+
+    /**
+     * Build URL from config parameters
+     *
+     * @return string
+     */
+
+    private function buildApiUrl()
+    {
+        return $this->getConfig('url') . $this->getConfig('format');
     }
 
 

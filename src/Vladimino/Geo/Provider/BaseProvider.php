@@ -8,7 +8,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 abstract class BaseProvider
 {
     /**
-     * Configuration file Format
+     * Configuration file format.
      */
     const CONFIG_FORMAT = '.yml';
 
@@ -28,7 +28,7 @@ abstract class BaseProvider
     protected $sLocation;
 
     /**
-     * Configuration loaded while instantiating
+     * Configuration loaded while instantiating.
      */
     public function __construct()
     {
@@ -38,7 +38,7 @@ abstract class BaseProvider
 
     /**
      * Returns the name of the Provider.
-     * To be implemented in child classes
+     * To be implemented in child classes.
      *
      * @return string
      */
@@ -46,7 +46,7 @@ abstract class BaseProvider
 
     /**
      * Returns the name of for the section in configuration file.
-     * To be implemented in child classes
+     * To be implemented in child classes.
      *
      * @return string
      */
@@ -61,7 +61,7 @@ abstract class BaseProvider
     }
 
     /**
-     * Load configuration file
+     * Load configuration file.
      */
     protected function loadConfig()
     {
@@ -115,7 +115,7 @@ abstract class BaseProvider
     }
 
     /**
-     * Get given location
+     * Get the location.
      */
     protected function getLocation()
     {
@@ -123,7 +123,10 @@ abstract class BaseProvider
     }
 
     /**
-     * Set the location string
+     * Set the location string.
+     *
+     * Location — The street address that you want to geocode, in the format
+     * used by the national postal service of the country concerned.
      *
      * @param string $sLocation
      */

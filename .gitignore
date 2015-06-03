@@ -1,2 +1,6 @@
 composer.lock
 vendor
+composer.phar
+Vagrantfile
+.vagrant
+.idea

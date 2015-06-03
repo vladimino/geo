@@ -53,6 +53,7 @@ class GeoClient
 
     /**
      * @param string $sLocation
+     *
      * @return \Vladimino\Geo\Entity\ResultCollection
      */
     public function getResultsByLocation($sLocation)
