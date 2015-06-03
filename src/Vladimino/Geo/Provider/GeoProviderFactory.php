@@ -29,7 +29,7 @@ class GeoProviderFactory
 
     /**
      * Main and only method to get an instance of GeoProviderInterface implementation
-     * by given name
+     * by given name.
      *
      * @static
      *

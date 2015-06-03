@@ -9,7 +9,7 @@ namespace Vladimino\Geo\Entity;
  * @package Vladimino\Geo\Entity
  * @author vladimino
  */
-class ResultCollection implements \Iterator
+class ResultCollection implements \Iterator, \JsonSerializable
 {
     /**
      * Count of objects received from the
@@ -24,7 +24,14 @@ class ResultCollection implements \Iterator
      *
      * @var int
      */
-    private $iPosition = 0;
+    public $iPosition = 0;
+
+    /**
+     * Given Provider
+     *
+     * @var string
+     */
+    public $sProvider;
 
     /**
      * Given Location
@@ -43,15 +50,23 @@ class ResultCollection implements \Iterator
     public $aResults = array();
 
     /**
+     * @param string $sProvider
      * @param string $sLocation
-     * @param array $aResults
      */
-    function __construct($sLocation, array $aResults)
+    public function __construct($sProvider, $sLocation)
     {
+        $this->sProvider = $sProvider;
         $this->sLocation = $sLocation;
-        $this->aResults = $aResults;
-        $this->iCount = count($aResults);
         $this->iPosition = 0;
+    }
+
+    /**
+     * @param Result $oResult
+     */
+    public function addResult(Result $oResult)
+    {
+        $this->aResults[] = $oResult;
+        $this->iCount++;
     }
 
     /**
@@ -99,5 +114,18 @@ class ResultCollection implements \Iterator
         $this->iPosition = 0;
     }
 
+    /**
+     * Specify data which should be serialized to JSON
+     *
+     * @return array
+     */
+    public function jsonSerialize() {
+        return array(
+            "provider" => $this->sProvider,
+            "location" => $this->sLocation,
+            "count" => $this->iCount,
+            "results" => $this->aResults
+        );
+    }
 
 }

@@ -23,7 +23,7 @@ class GeoClient
     /**
      * @var \Vladimino\Geo\Entity\ResultCollection;
      */
-    protected $oResults;
+    protected $oResultCollection;
 
     /**
      * @param string $sProviderName
@@ -58,23 +58,30 @@ class GeoClient
      */
     public function getResultsByLocation($sLocation)
     {
-        $this->oResults = $this->getProviderObject()->getResultsByLocation($sLocation);
-        return $this->oResults;
+        $this->oResultCollection = $this->getProviderObject()->getResultsByLocation($sLocation);
+        return $this->oResultCollection;
     }
 
     public function printResults()
     {
-        if ($this->oResults) {
+        printf("Given Location '%s' with provider '%s'.\n", $this->oResultCollection->sLocation, $this->oResultCollection->sProvider);
 
-            /**
-             * @var \Vladimino\Geo\Entity\Result $result
-             */
-            foreach ($this->oResults as $oResult) {
-                echo $oResult->city . "\n";
+        if ($this->oResultCollection) {
+
+            printf("Found %d result(s).\n\n", $this->oResultCollection->iCount);
+
+            /** @var \Vladimino\Geo\Entity\Result $oResult */
+            foreach ($this->oResultCollection as $oResult) {
+                printf("* Result #%d:\n", $this->oResultCollection->iPosition+1);
+                printf("\t** Country: %s;\n", $oResult->sCountry);
+                printf("\t** State: %s;\n", $oResult->sState);
+                printf("\t** City: %s;\n", $oResult->sCity);
+                printf("\t** Longitude: %s;\n", $oResult->fLongitude);
+                printf("\t** Latitude: %s.\n\n", $oResult->fLatitude);
             }
 
         } else {
-            echo "Results not found\n";
+            echo "Unfortunately, no results found\n";
         }
     }
 

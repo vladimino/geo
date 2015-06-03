@@ -4,6 +4,7 @@ namespace Vladimino\Geo\Provider;
 
 use Vladimino\Geo\Entity\Result;
 use Vladimino\Geo\Entity\ResultCollection;
+use Vladimino\Geo\Service\ResultFactory;
 
 /**
  * GeoProviderInterface implementation for Google Geocoding API provider.
@@ -42,21 +43,33 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     public function getResultsByLocation($sLocation)
     {
         $this->setLocation($sLocation);
-        $aResults = $this->makeQuery();
+        $aGoogleResults = $this->makeQuery();
 
-        if(is_null($aResults)){
+        if(is_null($aGoogleResults)){
             return null;
         }
 
-        $res1 = new Result();
-        $res1->city = 'city1';
+        /** @var \Vladimino\Geo\Entity\ResultCollection $oCollection  */
+        $oCollection = new ResultCollection($this->getName(), $this->getLocation());
 
-        $res2 = new Result();
-        $res2->city = 'city2';
+        /** @var array $aGoogleResult */
+        foreach($aGoogleResults as $aGoogleResult)
+        {
+            /** @var array $aComponents */
+            $aComponents = [
+                $aGoogleResult['address_components'][5]['long_name'],
+                $aGoogleResult['address_components'][4]['long_name'],
+                $aGoogleResult['address_components'][3]['long_name'],
+                $aGoogleResult['geometry']['location']['lng'],
+                $aGoogleResult['geometry']['location']['lat']
+            ];
 
-        $collection = new ResultCollection($sLocation, array($res1, $res2));
+            /** @var \Vladimino\Geo\Entity\Result $oResult */
+            $oResult = ResultFactory::make($aComponents);
+            $oCollection->addResult($oResult);
+        }
 
-        return $collection;
+        return $oCollection;
     }
 
     /**
@@ -65,28 +78,20 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
 
     private function makeQuery()
     {
-        /**
-         * @var string
-         */
+        /** @var string $sUrl */
         $sUrl = $this->buildApiUrl();
 
-        /**
-         * @var array
-         */
+        /** @var array $aParams */
         $aParams = array(
             'address' => $this->getLocation(),
             'key' => $this->getConfig('api_key')
         );
 
-        /**
-         * @var string
-         */
-        $sResult = file_get_contents($sUrl . '?' . http_build_query($aParams));
+        /** @var string $sResponse */
+        $sResponse = file_get_contents($sUrl . '?' . http_build_query($aParams));
 
-        /**
-         * @var array
-         */
-        $aResult = json_decode($sResult, true);
+        /** @var array $aResult */
+        $aResult = json_decode($sResponse, true);
 
         return (isset($aResult['results'])) ? $aResult['results'] : null;
     }

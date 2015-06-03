@@ -9,40 +9,72 @@ namespace Vladimino\Geo\Entity;
  * @package Vladimino\Geo\Entity
  * @author vladimino
  */
-class Result
+class Result implements \JsonSerializable
 {
     /**
      * County Name
      *
      * @var string
      */
-    public $country;
+    public $sCountry;
 
     /**
      * State Name
      *
      * @var string
      */
-    public $state;
+    public $sState;
 
     /**
      * City Name
      *
      * @var string
      */
-    public $city;
+    public $sCity;
 
     /**
      * Object Longitude
      *
      * @var float
      */
-    public $longitude;
+    public $fLongitude;
 
     /**
      * Object Latitude
      *
      * @var float
      */
-    public $latitude;
+    public $fLatitude;
+
+    /**
+     * @param string $sCountry
+     * @param string $sState
+     * @param string $sCity
+     * @param float $fLongitude
+     * @param float $fLatitude
+     */
+    public function __construct($sCountry, $sState, $sCity, $fLongitude, $fLatitude)
+    {
+        $this->sCountry = $sCountry;
+        $this->sState = $sState;
+        $this->sCity = $sCity;
+        $this->fLongitude = $fLongitude;
+        $this->fLatitude = $fLatitude;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "country" => $this->sCountry,
+            "state" => $this->sState,
+            "city" => $this->sCity,
+            "longitude" => $this->fLongitude,
+            "latitude" => $this->fLatitude
+        ];
+    }
 } 
