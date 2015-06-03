@@ -29,14 +29,48 @@ class GeoClient
     protected $sProviderName = 'google';
 
     /**
-     * @var \Vladimino\Geo\Provider\GeoProviderInterface;
+     * @var string
+     */
+    protected $sLocation;
+
+    /**
+     * @var \Vladimino\Geo\Provider\GeoProviderInterface
      */
     protected $oProvider;
 
     /**
-     * @var \Vladimino\Geo\Entity\ResultCollection;
+     * @var \Vladimino\Geo\Entity\ResultCollection
      */
     protected $oResultCollection;
+
+    /**
+     * Allowed short options
+     *
+     * @var array
+     */
+    protected $aShortOptions = [
+        "l:",
+        "p:",
+        "f:",
+        "h"
+    ];
+
+    /**
+     * Allowed long options
+     *
+     * @var array
+     */
+    protected $aLongOptions = [
+        "location:",
+        "provider:",
+        "format:",
+        "help"
+    ];
+
+    /**
+     * @var string
+     */
+    protected $sCommand;
 
     public function __construct()
     {
@@ -57,12 +91,28 @@ class GeoClient
      * Gets the application version.
      *
      * @return string The application version
-     *
-     * @api
      */
     public function getVersion()
     {
         return self::VERSION;
+    }
+
+    /**
+     * Gets given command
+     *
+     * @return string|null Given command
+     */
+    protected function getCommand()
+    {
+        return $this->sCommand;
+    }
+
+    /**
+     * @param string $sCommand
+     */
+    protected function setCommand($sCommand)
+    {
+        $this->sCommand = $sCommand;
     }
 
     /**
@@ -82,27 +132,27 @@ class GeoClient
     }
 
     /**
-     * @param string $sLocation
-     *
      * @return \Vladimino\Geo\Entity\ResultCollection
+     * @throws \Exception if can't get results
      */
-    public function getResultsByLocation($sLocation)
+    public function getResultsByLocation()
     {
         try {
-            $this->oResultCollection = $this->getProviderObject()->getResultsByLocation($sLocation);
+            $this->oResultCollection = $this->getProviderObject()->getResultsByLocation($this->sLocation);
             return $this->oResultCollection;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $this->terminate($e->getMessage());
         }
     }
 
-    /**
-     * Prints the output.
-     */
-    public function printResults()
+    protected function printGeoResults()
     {
+
+        //if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        //    echo 'This is a server using Windows!';
+        //} else {
+        //    echo 'This is a server not using Windows!';
+        //}
 
         if ($this->oResultCollection) {
             printf("Given Location '%s' with provider '%s'.\n", $this->oResultCollection->sLocation, $this->oResultCollection->sProvider);
@@ -119,7 +169,7 @@ class GeoClient
             }
 
         } else {
-            echo "Unfortunately, no results found\n";
+            print "Unfortunately, no results found\n";
         }
     }
 
@@ -128,36 +178,77 @@ class GeoClient
      *
      * @return string The long application version
      */
-    public function getLongVersion()
+    public function printLongVersion()
     {
         //return EscapeColors::green($this->getName()) . " version " . EscapeColors::cyan($this->getVersion()) . "\n";
-        return sprintf("%s version %s\n", $this->getName() , $this->getVersion());
+        printf("%s version %s\n\n", $this->getName(), $this->getVersion());
     }
 
     /**
-     *
+     * Processes given options from arguments
      */
     protected function handleRequest()
     {
-        //print $this->getLongVersion();
+        /** @var array $aOptions */
+        $aOptions = getopt(implode($this->aShortOptions), $this->aLongOptions);
+
+        if (!empty($aOptions)) {
+            if (isset($aOptions['h']) || isset($aOptions['help'])) {
+                $this->setCommand('help');
+                return;
+            }
+
+            if (isset($aOptions['l']) || isset($aOptions['location'])) {
+                $this->setCommand('geocode');
+                $this->sLocation = (isset($aOptions['l'])) ? $aOptions['l'] : $aOptions['location'];
+            }
+
+            if (isset($aOptions['p']) || isset($aOptions['provider'])) {
+                $this->sProviderName = (isset($aOptions['p'])) ? $aOptions['p'] : $aOptions['provider'];
+            }
+        }
     }
 
     /**
-     * Gets the default input definition.
+     * Executes given command and prints results
+     */
+    public function executeCommand()
+    {
+        $this->printLongVersion();
+
+        switch ($this->getCommand()) {
+            case 'geocode':
+                $this->getResultsByLocation();
+                $this->printGeoResults();
+                break;
+            case 'help':
+                $this->printHelp();
+                break;
+            default:
+                $this->printAbout();
+        }
+    }
+
+    /**
+     * Prints information about application
+     */
+    protected function printAbout()
+    {
+        print "Type --help to display all possible options.\n";
+    }
+
+    /**
+     * Prints help instructions.
      *
      */
     protected function printHelp()
     {
-        return new InputDefinition(array(
-            new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
-            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Display this help message'),
-            new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Do not output any message'),
-            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, 'Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug'),
-            new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Display this application version'),
-            new InputOption('--ansi', '', InputOption::VALUE_NONE, 'Force ANSI output'),
-            new InputOption('--no-ansi', '', InputOption::VALUE_NONE, 'Disable ANSI output'),
-            new InputOption('--no-interaction', '-n', InputOption::VALUE_NONE, 'Do not ask any interactive question'),
-        ));
+        print "Possible options:\n";
+        print "--help, -h: Display this help message.\n";
+        print "--location <address>, -l<address>: Address to geocode.\n";
+        print "--provider <name>, -p<name>: Provider for geocoding service [Default: google].\n";
+        print "\nExample usage:\n\n";
+        print "php geo.php --location \"Oranienstraße 164, 10969, Berlin Germany\" --provider google\n\n";
     }
 
     /**
