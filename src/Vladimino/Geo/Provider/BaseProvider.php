@@ -5,6 +5,13 @@ namespace Vladimino\Geo\Provider;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 
+/**
+ * Class BaseProvider
+ *
+ * @package Vladimino\Geo\Provider
+ * @author vladimino
+ */
+
 abstract class BaseProvider
 {
     /**

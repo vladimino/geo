@@ -43,27 +43,21 @@ class GeoProviderFactory
     public static function getProvider($sProviderName)
     {
         if (!isset(self::$aProviderNameToClass[$sProviderName])) {
-            throw new \InvalidArgumentException(sprintf('Unknown provider: [%s].', $sProviderName));
+            throw new \InvalidArgumentException(sprintf( "%s Error. Unknown provider: '%s'.", __CLASS__ , $sProviderName));
         }
 
-        /**
-         * Classname for GeoProvider
-         *
-         * @var string
-         */
+        /** @var string $sProviderClassname */
         $sProviderClassname = self::CLASS_PREFIX . self::$aProviderNameToClass[$sProviderName] . self::CLASS_SUFFIX;
 
         if (!class_exists($sProviderClassname)) {
-            throw new \RuntimeException(sprintf('Can\'t load class for given sorting order [%s] with classname [%s].', $sProviderName, $sProviderClassname));
+            throw new \RuntimeException(sprintf("%s Error. Can't load class for given provider '%s' with classname '%s'.", __CLASS__ , $sProviderName, $sProviderClassname));
         }
 
-        /**
-         * @var \Vladimino\Geo\Provider\GeoProviderInterface
-         */
+        /** @var \Vladimino\Geo\Provider\GeoProviderInterface  $oProvider */
         $oProvider = new $sProviderClassname();
 
         if (!($oProvider instanceof GeoProviderInterface)) {
-            throw new \RuntimeException(sprintf('Classname [%s] does not implement GeoProviderInterface.', $sProviderClassname));
+            throw new \RuntimeException(sprintf("%s Error. Classname '%s' does not implement GeoProviderInterface.", __CLASS__ , $sProviderClassname));
         }
 
         return $oProvider;

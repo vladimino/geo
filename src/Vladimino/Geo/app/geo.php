@@ -10,7 +10,7 @@ use Vladimino\Geo\Client\GeoClient;
 $oClient = new GeoClient();
 //$oClient = new GeoClient('google');
 //$oClient->getResultsByLocation('Moscow, Russia');
-//$oClient->getResultsByLocation('Oranienstraße 164, 10969, Berlin Germany');
+$oClient->getResultsByLocation('-#$%%%');
 //$oClient->getResultsByLocation('Oranienstraße 164, 10969, Berlin Germany');
 $oClient->printResults();
 

@@ -25,6 +25,6 @@ API can return more than one result so you need to handle and display that as we
 
 You need at least:
 
-* PHP 5.3 or higher
+* PHP 5.4 or higher
 * Composer to install some dependencies. See [this documentation to get started with composer](http://getcomposer.org/doc/00-intro.md#installation)
 * Some kind of shell, if you want to run unit tests
