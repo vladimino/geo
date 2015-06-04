@@ -366,7 +366,7 @@ class GeoClient
         $sOutput .= " {green}--version{/green} (-v)\t\tDisplay application version.\n";
         $sOutput .= " {green}--location{/green} {purple}<address>{/purple}\tAddress to geocode.\n";
         $sOutput .= sprintf(" {green}--provider{/green}{purple} <name>{/purple}\tProvider for geocoding service [{brown}default value:{/brown} {purple}%s{/purple}].\n", $this->getProviderName());
-        $sOutput .= sprintf(" {green}--format{/green}{purple}<%s>{/purple}\tReturn format [{brown}default value:{/brown} {purple}%s{/purple}].\n\n", implode('|', $this->aAllowedFormats), $this->getFormat());
+        $sOutput .= sprintf(" {green}--format{/green} {purple}<%s>{/purple}\tReturn format [{brown}default value:{/brown} {purple}%s{/purple}].\n\n", implode('|', $this->aAllowedFormats), $this->getFormat());
 
         $this->printMessage($sOutput);
     }
