@@ -69,7 +69,6 @@ Will wait for some criticism and/or (why not?) positive feedback.
 1. Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable or use the installer.
 
     ```
-    sh
     $ curl -sS https://getcomposer.org/installer | php
     ```
 
