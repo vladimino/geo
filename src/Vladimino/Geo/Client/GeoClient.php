@@ -320,11 +320,11 @@ class GeoClient
             /** @var \Vladimino\Geo\Entity\Result $oResult */
             foreach ($this->oResultCollection as $oResult) {
                 $sOutput .= sprintf("* {yellow}Result #%d:{/yellow}\n", $this->oResultCollection->iPosition + 1);
-                $sOutput .= sprintf(" ** {brown}Country:{/brown} {green}%s{/green};\n", $oResult->sCountry);
-                $sOutput .= sprintf(" ** {brown}State:{/brown} {green}%s{/green};\n", $oResult->sState);
-                $sOutput .= sprintf(" ** {brown}City:{/brown} {green}%s{/green};\n", $oResult->sCity);
-                $sOutput .= sprintf(" ** {brown}Longitude:{/brown} {green}%s{/green};\n", $oResult->fLongitude);
-                $sOutput .= sprintf(" ** {brown}Latitude:{/brown} {green}%s{/green}.\n\n", $oResult->fLatitude);
+                $sOutput .= sprintf(" * {brown}Country:{/brown} {green}%s{/green};\n", $oResult->sCountry);
+                $sOutput .= sprintf(" * {brown}State:{/brown} {green}%s{/green};\n", $oResult->sState);
+                $sOutput .= sprintf(" * {brown}City:{/brown} {green}%s{/green};\n", $oResult->sCity);
+                $sOutput .= sprintf(" * {brown}Longitude:{/brown} {green}%s{/green};\n", $oResult->fLongitude);
+                $sOutput .= sprintf(" * {brown}Latitude:{/brown} {green}%s{/green}.\n\n", $oResult->fLatitude);
             }
         } else {
             $sOutput .= sprintf("{yellow}Unfortunately, no results found{/yellow}\n\n");
@@ -349,7 +349,7 @@ class GeoClient
      */
     protected function printAbout()
     {
-        $this->printMessage("Type {green}--help{/green} to display all available options.\n\n");
+        $this->printMessage("Try '{green}php geo.php --help{/green}' for more options.\n\n");
     }
 
     /**
@@ -360,7 +360,7 @@ class GeoClient
     {
         /** @var string $sOutput */
 
-        $sOutput = "{yellow}Usage:{/yellow}\n php geo.php [options]\n\n";
+        $sOutput = "{yellow}Usage:{/yellow}\n php geo.php [OPTIONS]\n\n";
         $sOutput .= "{yellow}Available options:{/yellow}\n";
         $sOutput .= " {green}--help{/green} (-h)\t\tDisplay this help message.\n";
         $sOutput .= " {green}--version{/green} (-v)\t\tDisplay application version.\n";
