@@ -4,3 +4,4 @@ composer.phar
 Vagrantfile
 .vagrant
 .idea
+install.sh

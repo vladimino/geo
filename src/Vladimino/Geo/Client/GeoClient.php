@@ -2,7 +2,8 @@
 
 namespace Vladimino\Geo\Client;
 
-use Vladimino\Geo\Console\EscapeColors;
+use Vladimino\Geo\Console\Input;
+use Vladimino\Geo\Console\Output;
 use Vladimino\Geo\Provider\GeoProviderFactory;
 
 /**
@@ -23,14 +24,12 @@ class GeoClient
      */
     const NAME = 'GeoCoder Console Application';
 
-    // TODO: Implement Getter & Setter
 
     /**
      * @var string
      */
     protected $sProviderName = 'google';
 
-    // TODO: Implement Getter & Setter
 
     /**
      * @var string
@@ -56,7 +55,8 @@ class GeoClient
         "l:",
         "p:",
         "f:",
-        "h"
+        "h",
+        "v"
     ];
 
     /**
@@ -68,7 +68,8 @@ class GeoClient
         "location:",
         "provider:",
         "format:", // TODO: Implement Format handling
-        "help"
+        "help",
+        "version"
     ];
 
     /**
@@ -78,6 +79,7 @@ class GeoClient
 
     public function __construct()
     {
+
         $this->handleRequest();
     }
 
@@ -120,73 +122,35 @@ class GeoClient
     }
 
     /**
-     * @return \Vladimino\Geo\Provider\GeoProviderInterface
+     * @return string
      */
-    private function getProviderObject()
+    public function getLocation()
     {
-        try {
-            if (is_null($this->oProvider)) {
-                $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
-            }
-            return $this->oProvider;
-        } catch (\Exception $e) {
-            $this->terminate($e->getMessage());
-        }
-
+        return $this->sLocation;
     }
 
     /**
-     * @return \Vladimino\Geo\Entity\ResultCollection
-     * @throws \Exception if can't get results
+     * @param string $sLocation
      */
-    public function getResultsByLocation()
+    public function setLocation($sLocation)
     {
-        try {
-            $this->oResultCollection = $this->getProviderObject()->getResultsByLocation($this->sLocation);
-            return $this->oResultCollection;
-        } catch (\Exception $e) {
-            $this->terminate($e->getMessage());
-        }
-    }
-
-    protected function printGeoResults()
-    {
-
-        // TODO: Implement enviroment check
-        //if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        //    echo 'This is a server using Windows!';
-        //} else {
-        //    echo 'This is a server not using Windows!';
-        //}
-
-        if ($this->oResultCollection) {
-            printf("Given Location '%s' with provider '%s'.\n", $this->oResultCollection->sLocation, $this->oResultCollection->sProvider);
-            printf("Found %d result(s).\n\n", $this->oResultCollection->iCount);
-
-            /** @var \Vladimino\Geo\Entity\Result $oResult */
-            foreach ($this->oResultCollection as $oResult) {
-                printf("* Result #%d:\n", $this->oResultCollection->iPosition + 1);
-                printf("\t** Country: %s;\n", $oResult->sCountry);
-                printf("\t** State: %s;\n", $oResult->sState);
-                printf("\t** City: %s;\n", $oResult->sCity);
-                printf("\t** Longitude: %s;\n", $oResult->fLongitude);
-                printf("\t** Latitude: %s.\n\n", $oResult->fLatitude);
-            }
-
-        } else {
-            print "Unfortunately, no results found\n";
-        }
+        $this->sLocation = $sLocation;
     }
 
     /**
-     * Returns the long version of the application.
-     *
-     * @return string The long application version
+     * @return string
      */
-    public function printLongVersion()
+    public function getProviderName()
     {
-        //return EscapeColors::green($this->getName()) . " version " . EscapeColors::cyan($this->getVersion()) . "\n";
-        printf("%s version %s\n\n", $this->getName(), $this->getVersion());
+        return $this->sProviderName;
+    }
+
+    /**
+     * @param string $sProviderName
+     */
+    public function setProviderName($sProviderName)
+    {
+        $this->sProviderName = $sProviderName;
     }
 
     /**
@@ -195,7 +159,7 @@ class GeoClient
     protected function handleRequest()
     {
         /** @var array $aOptions */
-        $aOptions = getopt(implode($this->aShortOptions), $this->aLongOptions);
+        $aOptions = Input::getPassedOptions($this->aShortOptions, $this->aLongOptions);
 
         if (!empty($aOptions)) {
             if (isset($aOptions['h']) || isset($aOptions['help'])) {
@@ -203,13 +167,18 @@ class GeoClient
                 return;
             }
 
-            if (isset($aOptions['l']) || isset($aOptions['location'])) {
-                $this->setCommand('geocode');
-                $this->sLocation = (isset($aOptions['l'])) ? $aOptions['l'] : $aOptions['location'];
+            if (isset($aOptions['v']) || isset($aOptions['version'])) {
+                $this->setCommand('version');
+                return;
             }
 
-            if (isset($aOptions['p']) || isset($aOptions['provider'])) {
-                $this->sProviderName = (isset($aOptions['p'])) ? $aOptions['p'] : $aOptions['provider'];
+            if (isset($aOptions['location'])) {
+                $this->setCommand('geocode');
+                $this->sLocation = $aOptions['location'];
+            }
+
+            if (isset($aOptions['provider'])) {
+                $this->sProviderName = $aOptions['provider'];
             }
         }
     }
@@ -229,9 +198,67 @@ class GeoClient
             case 'help':
                 $this->printHelp();
                 break;
+            case 'version':
+                break;
             default:
                 $this->printAbout();
         }
+    }
+
+
+    /**
+     * Trying to geocode given location
+     *
+     * @return \Vladimino\Geo\Entity\ResultCollection
+     * @throws \Exception if can't get results
+     */
+    protected function getResultsByLocation()
+    {
+        try {
+            $this->oResultCollection = $this->getProviderObject()->getResultsByLocation($this->getLocation());
+            return $this->oResultCollection;
+        } catch (\Exception $e) {
+            $this->terminateApplication($e->getMessage());
+        }
+    }
+
+    /**
+     * Prints geocoding results
+     */
+    protected function printGeoResults()
+    {
+        /** @var string $sOutput */
+        $sOutput = "";
+
+        if ($this->oResultCollection) {
+            $sOutput .= sprintf("Given Location '{purple}%s{/purple}' with provider '{purple}%s{/purple}'.\n", $this->oResultCollection->sLocation, $this->oResultCollection->sProvider);
+            $sOutput .= sprintf("Found {cyan}%d{/cyan} result(s).\n\n", $this->oResultCollection->iCount);
+
+            /** @var \Vladimino\Geo\Entity\Result $oResult */
+            foreach ($this->oResultCollection as $oResult) {
+                $sOutput .= sprintf("* {yellow}Result #%d:{/yellow}\n", $this->oResultCollection->iPosition + 1);
+                $sOutput .= sprintf(" ** {brown}Country:{/brown} {green}%s{/green};\n", $oResult->sCountry);
+                $sOutput .= sprintf(" ** {brown}State:{/brown} {green}%s{/green};\n", $oResult->sState);
+                $sOutput .= sprintf(" ** {brown}City:{/brown} {green}%s{/green};\n", $oResult->sCity);
+                $sOutput .= sprintf(" ** {brown}Longitude:{/brown} {green}%s{/green};\n", $oResult->fLongitude);
+                $sOutput .= sprintf(" ** {brown}Latitude:{/brown} {green}%s{/green}.\n\n", $oResult->fLatitude);
+            }
+        } else {
+            $sOutput .= sprintf("{yellow}Unfortunately, no results found{/yellow}\n\n");
+        }
+
+        Output::printMessage($sOutput);
+    }
+
+
+    /**
+     * Returns the long version of the application.
+     *
+     * @return string The long application version
+     */
+    protected function printLongVersion()
+    {
+        Output::printMessage(sprintf("{bold_blue}%s{/bold_blue} version {cyan}%s{/cyan}\n\n", $this->getName(), $this->getVersion()));
     }
 
     /**
@@ -239,7 +266,7 @@ class GeoClient
      */
     protected function printAbout()
     {
-        print "Type --help to display all possible options.\n";
+        Output::printMessage("Type {green}--help{/green} to display all available options.\n\n");
     }
 
     /**
@@ -248,22 +275,45 @@ class GeoClient
      */
     protected function printHelp()
     {
-        print "Possible options:\n";
-        print "--help, -h: Display this help message.\n";
-        print "--location <address>, -l<address>: Address to geocode.\n";
-        print "--provider <name>, -p<name>: Provider for geocoding service [Default: google].\n";
-        print "\nExample usage:\n\n";
-        print "php geo.php --location \"Oranienstraße 164, 10969, Berlin Germany\" --provider google\n\n";
+        /** @var string $sOutput */
+
+        $sOutput = "{yellow}Usage:{/yellow}\n php geo.php [options]\n\n";
+        $sOutput .="{yellow}Available options:{/yellow}\n";
+        $sOutput .= " {green}--help{/green} (-h)\t\tDisplay this help message.\n";
+        $sOutput .= " {green}--version{/green} (-v)\t\tDisplay application version.\n";
+        $sOutput .= " {green}--location{/green} {purple}<address>{/purple}\tAddress to geocode.\n";
+        $sOutput .= " {green}--provider{/green}{purple} <name>{/purple}\tProvider for geocoding service [{brown}default value:{/brown} {purple}google{/purple}].\n\n";
+
+        Output::printMessage($sOutput);
     }
 
     /**
-     * Terminate application with error
+     * Creates Provider object if it does not exists
+     *
+     * @return \Vladimino\Geo\Provider\GeoProviderInterface
+     */
+    protected function getProviderObject()
+    {
+        try {
+            if (is_null($this->oProvider)) {
+                $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
+            }
+            return $this->oProvider;
+        } catch (\Exception $e) {
+            $this->terminateApplication($e->getMessage());
+        }
+
+    }
+
+    /**
+     * Terminates application with error
      *
      * @param string $sMessage
      */
-    protected function  terminate($sMessage)
+    protected function  terminateApplication($sMessage)
     {
-        die(sprintf("Application terminated unexpectedly.\n%s\n", $sMessage));
+        Output::printMessage(sprintf("{bold_red}Application terminated unexpectedly.{/bold_red}\n{bold_red}%s{/bold_red}\n\n", $sMessage));
+        die;
     }
 
 } 
