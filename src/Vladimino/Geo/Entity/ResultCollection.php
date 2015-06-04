@@ -119,13 +119,23 @@ class ResultCollection implements \Iterator, \JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize() {
-        return array(
+    public function jsonSerialize()
+    {
+        $aReturn = [
             "provider" => $this->sProvider,
             "location" => $this->sLocation,
-            "count" => $this->iCount,
-            "results" => $this->aResults
-        );
+            "count" => $this->iCount
+        ];
+
+        if ($this->iCount) {
+            $aReturn["status"] = "ok";
+            $aReturn["results"] = $this->aResults;
+        } else {
+            $aReturn["status"] = "error";
+            $aReturn["message"] = "Unfortunately, no results found";
+        }
+
+        return $aReturn;
     }
 
 }

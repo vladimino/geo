@@ -37,27 +37,31 @@ class GeoClient
     protected $sLocation;
 
     /**
-     * @var \Vladimino\Geo\Provider\GeoProviderInterface
+     * Output Format
+     *
+     * @var string
      */
-    protected $oProvider;
+    protected $sFormat = "stdout";
 
     /**
-     * @var \Vladimino\Geo\Entity\ResultCollection
+     * Possible values for format
+     * @var array
      */
-    protected $oResultCollection;
+    protected $aAllowedFormats = ["stdout", "json"];
+
+    /**
+     * Application command
+     *
+     * @var string
+     */
+    protected $sCommand;
 
     /**
      * Allowed short options
      *
      * @var array
      */
-    protected $aShortOptions = [
-        "l:",
-        "p:",
-        "f:",
-        "h",
-        "v"
-    ];
+    protected $aShortOptions = ["h", "v"];
 
     /**
      * Allowed long options
@@ -67,15 +71,27 @@ class GeoClient
     protected $aLongOptions = [
         "location:",
         "provider:",
-        "format:", // TODO: Implement Format handling
+        "format:",
         "help",
         "version"
     ];
 
     /**
-     * @var string
+     * Stores non-critical errors
+     *
+     * @var array
      */
-    protected $sCommand;
+    protected $aErrors = [];
+
+    /**
+     * @var \Vladimino\Geo\Provider\GeoProviderInterface
+     */
+    protected $oProvider;
+
+    /**
+     * @var \Vladimino\Geo\Entity\ResultCollection
+     */
+    protected $oResultCollection;
 
     public function __construct()
     {
@@ -154,6 +170,29 @@ class GeoClient
     }
 
     /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->sFormat;
+    }
+
+    /**
+     * @param string $sFormat
+     */
+    public function setFormat($sFormat)
+    {
+        $this->sFormat = $sFormat;
+    }
+
+    /**
+     * @param string $sErrorMessage
+     */
+    public function addError($sErrorMessage){
+        $this->aErrors[] = $sErrorMessage;
+    }
+
+    /**
      * Processes given options from arguments
      */
     protected function handleRequest()
@@ -162,6 +201,17 @@ class GeoClient
         $aOptions = Input::getPassedOptions($this->aShortOptions, $this->aLongOptions);
 
         if (!empty($aOptions)) {
+
+            if (isset($aOptions['format'])) {
+                if (in_array($aOptions['format'], $this->aAllowedFormats)) {
+                    $this->setFormat($aOptions['format']);
+                } else {
+                    $this->addError(sprintf("Unknown format '{purple}%s{/purple}' given.\n", $aOptions['format']));
+                    $this->addError(sprintf("Output format is set to default value '{purple}%s{/purple}'.\n", $this->getFormat()));
+                    $this->addError(sprintf("{yellow}Allowed formats:{/yellow}\n {green}%s{/green}\n\n", implode(',', $this->aAllowedFormats)));
+                }
+            }
+
             if (isset($aOptions['h']) || isset($aOptions['help'])) {
                 $this->setCommand('help');
                 return;
@@ -174,12 +224,14 @@ class GeoClient
 
             if (isset($aOptions['location'])) {
                 $this->setCommand('geocode');
-                $this->sLocation = $aOptions['location'];
+                $this->setLocation($aOptions['location']);
             }
 
             if (isset($aOptions['provider'])) {
-                $this->sProviderName = $aOptions['provider'];
+                $this->setProviderName($aOptions['provider']);
             }
+
+
         }
     }
 
@@ -188,20 +240,33 @@ class GeoClient
      */
     public function executeCommand()
     {
-        $this->printLongVersion();
+        if ('stdout' === $this->getFormat()) {
 
-        switch ($this->getCommand()) {
-            case 'geocode':
+            $this->printLongVersion();
+            $this->printErrors();
+
+            switch ($this->getCommand()) {
+                case 'geocode':
+                    $this->getResultsByLocation();
+                    $this->printGeoResults();
+                    break;
+                case 'help':
+                    $this->printHelp();
+                    break;
+                case 'version':
+                    break;
+                default:
+                    $this->printAbout();
+            }
+        }
+
+        if ('json' === $this->getFormat()) {
+            if ('geocode' === $this->getCommand()) {
                 $this->getResultsByLocation();
-                $this->printGeoResults();
-                break;
-            case 'help':
-                $this->printHelp();
-                break;
-            case 'version':
-                break;
-            default:
-                $this->printAbout();
+                $this->responseJSON($this->oResultCollection);
+            } else {
+                $this->terminateApplication("json format works only for geocode responses");
+            }
         }
     }
 
@@ -220,6 +285,24 @@ class GeoClient
         } catch (\Exception $e) {
             $this->terminateApplication($e->getMessage());
         }
+    }
+
+    /**
+     * Creates Provider object if it does not exists
+     *
+     * @return \Vladimino\Geo\Provider\GeoProviderInterface
+     */
+    protected function getProviderObject()
+    {
+        try {
+            if (is_null($this->oProvider)) {
+                $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
+            }
+            return $this->oProvider;
+        } catch (\Exception $e) {
+            $this->terminateApplication($e->getMessage());
+        }
+
     }
 
     /**
@@ -247,7 +330,7 @@ class GeoClient
             $sOutput .= sprintf("{yellow}Unfortunately, no results found{/yellow}\n\n");
         }
 
-        Output::printMessage($sOutput);
+        $this->printMessage($sOutput);
     }
 
 
@@ -258,7 +341,7 @@ class GeoClient
      */
     protected function printLongVersion()
     {
-        Output::printMessage(sprintf("{bold_blue}%s{/bold_blue} version {cyan}%s{/cyan}\n\n", $this->getName(), $this->getVersion()));
+        $this->printMessage(sprintf("{bold_blue}%s{/bold_blue} version {cyan}%s{/cyan}\n\n", $this->getName(), $this->getVersion()));
     }
 
     /**
@@ -266,7 +349,7 @@ class GeoClient
      */
     protected function printAbout()
     {
-        Output::printMessage("Type {green}--help{/green} to display all available options.\n\n");
+        $this->printMessage("Type {green}--help{/green} to display all available options.\n\n");
     }
 
     /**
@@ -278,31 +361,53 @@ class GeoClient
         /** @var string $sOutput */
 
         $sOutput = "{yellow}Usage:{/yellow}\n php geo.php [options]\n\n";
-        $sOutput .="{yellow}Available options:{/yellow}\n";
+        $sOutput .= "{yellow}Available options:{/yellow}\n";
         $sOutput .= " {green}--help{/green} (-h)\t\tDisplay this help message.\n";
         $sOutput .= " {green}--version{/green} (-v)\t\tDisplay application version.\n";
         $sOutput .= " {green}--location{/green} {purple}<address>{/purple}\tAddress to geocode.\n";
-        $sOutput .= " {green}--provider{/green}{purple} <name>{/purple}\tProvider for geocoding service [{brown}default value:{/brown} {purple}google{/purple}].\n\n";
+        $sOutput .= sprintf(" {green}--provider{/green}{purple} <name>{/purple}\tProvider for geocoding service [{brown}default value:{/brown} {purple}%s{/purple}].\n", $this->getProviderName());
+        $sOutput .= sprintf(" {green}--format{/green}{purple}<%s>{/purple}\tReturn format [{brown}default value:{/brown} {purple}%s{/purple}].\n\n", implode('|', $this->aAllowedFormats), $this->getFormat());
 
-        Output::printMessage($sOutput);
+        $this->printMessage($sOutput);
+    }
+
+
+    /**
+     * Prints message according to given format
+     *
+     * @param string $sMessage
+     */
+    public function printMessage($sMessage)
+    {
+        Output::printMessage($sMessage);
     }
 
     /**
-     * Creates Provider object if it does not exists
+     * Prints response with JSON
      *
-     * @return \Vladimino\Geo\Provider\GeoProviderInterface
+     * @param array|object $aValues
      */
-    protected function getProviderObject()
+    protected function responseJSON($aValues)
     {
-        try {
-            if (is_null($this->oProvider)) {
-                $this->oProvider = GeoProviderFactory::getProvider($this->sProviderName);
-            }
-            return $this->oProvider;
-        } catch (\Exception $e) {
-            $this->terminateApplication($e->getMessage());
-        }
+        header('Content-Type: application/json');
 
+        /** @var mixed $sJSON */
+        $sJSON = json_encode($aValues);
+
+        // If encoding fails
+        if (is_null($sJSON)) {
+            /** @var array $aResponse */
+            $aResponse = [
+                'status' => 'error',
+                'message' => "Invalid response",
+                "provider" => $this->getProviderName(),
+                "location" => $this->getLocation()
+            ];
+            print json_encode($aResponse);
+        } else {
+            print $sJSON;
+        }
+        print "\n";
     }
 
     /**
@@ -312,8 +417,30 @@ class GeoClient
      */
     protected function  terminateApplication($sMessage)
     {
-        Output::printMessage(sprintf("{bold_red}Application terminated unexpectedly.{/bold_red}\n{bold_red}%s{/bold_red}\n\n", $sMessage));
+        if ('stdout' === $this->getFormat()) {
+            $this->printMessage(sprintf("{bold_red}Application terminated unexpectedly.{/bold_red}\n{bold_red}%s{/bold_red}\n\n", $sMessage));
+        } elseif ('json' === $this->getFormat()) {
+            $this->responseJSON([
+                'status' => 'error',
+                'message' => $sMessage,
+                "provider" => $this->getProviderName(),
+                "location" => $this->getLocation()
+            ]);
+        }
         die;
+    }
+
+
+
+    /**
+     * Prints stored non-critical errors
+     */
+    protected function printErrors()
+    {
+        if (!empty($this->aErrors)) {
+            $this->printMessage(implode($this->aErrors));
+            $this->aErrors = [];
+        }
     }
 
 } 
