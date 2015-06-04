@@ -3,14 +3,12 @@
 namespace Vladimino\Geo\Provider;
 
 /**
- * The implementation is responsible for resolving the id of the city from the
- * given city name (in this simple case via an array of CityName => id). The second
- * responsibility is to sort the returning result from the partner service in whatever
- * way.
+ * Interface GeoProviderInterface
+ * Common Interface for all GeoProviders to be used in GeoProviderFactory
  *
+ * @package Vladimino\Geo\Provider
  * @author vladimino
  */
-
 interface GeoProviderInterface
 {
     /**

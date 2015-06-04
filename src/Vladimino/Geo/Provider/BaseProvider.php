@@ -11,7 +11,6 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * @package Vladimino\Geo\Provider
  * @author vladimino
  */
-
 abstract class BaseProvider
 {
     /**
@@ -60,6 +59,8 @@ abstract class BaseProvider
     protected abstract function getConfigSection();
 
     /**
+     * Build full path to configuration file
+     *
      * @return string
      */
     protected function buildConfigPath()
@@ -105,6 +106,8 @@ abstract class BaseProvider
     }
 
     /**
+     * Gets a config parameter (certain or all)
+     *
      * @param string $sParam
      * @return array|null
      */
@@ -123,6 +126,8 @@ abstract class BaseProvider
 
     /**
      * Get the location.
+     *
+     * @return string
      */
     protected function getLocation()
     {
@@ -130,10 +135,7 @@ abstract class BaseProvider
     }
 
     /**
-     * Set the location string.
-     *
-     * Location — The street address that you want to geocode, in the format
-     * used by the national postal service of the country concerned.
+     * Set the location.
      *
      * @param string $sLocation
      */

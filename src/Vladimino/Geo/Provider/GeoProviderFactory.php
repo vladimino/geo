@@ -2,9 +2,11 @@
 namespace Vladimino\Geo\Provider;
 
 /**
+ * Class GeoProviderFactory
  * This class implements factory for different GeoProviderInterface implementations.
  * It takes provider name as a parameter which defines what exactly implementation requested.
  *
+ * @package Vladimino\Geo\Provider
  * @author vladimino
  */
 class GeoProviderFactory
@@ -20,6 +22,7 @@ class GeoProviderFactory
 
     /**
      * Known implementations of Geo Providers
+     * (reserved for future implementations)
      *
      * @var array
      */
@@ -43,21 +46,21 @@ class GeoProviderFactory
     public static function getProvider($sProviderName)
     {
         if (!isset(self::$aProviderNameToClass[$sProviderName])) {
-            throw new \InvalidArgumentException(sprintf( "%s Error. Unknown provider: '%s'.", __CLASS__ , $sProviderName));
+            throw new \InvalidArgumentException(sprintf("%s Error. Unknown provider: '%s'.", __CLASS__, $sProviderName));
         }
 
         /** @var string $sProviderClassname */
         $sProviderClassname = self::CLASS_PREFIX . self::$aProviderNameToClass[$sProviderName] . self::CLASS_SUFFIX;
 
         if (!class_exists($sProviderClassname)) {
-            throw new \RuntimeException(sprintf("%s Error. Can't load class for given provider '%s' with classname '%s'.", __CLASS__ , $sProviderName, $sProviderClassname));
+            throw new \RuntimeException(sprintf("%s Error. Can't load class for given provider '%s' with classname '%s'.", __CLASS__, $sProviderName, $sProviderClassname));
         }
 
-        /** @var \Vladimino\Geo\Provider\GeoProviderInterface  $oProvider */
+        /** @var \Vladimino\Geo\Provider\GeoProviderInterface $oProvider */
         $oProvider = new $sProviderClassname();
 
         if (!($oProvider instanceof GeoProviderInterface)) {
-            throw new \RuntimeException(sprintf("%s Error. Classname '%s' does not implement GeoProviderInterface.", __CLASS__ , $sProviderClassname));
+            throw new \RuntimeException(sprintf("%s Error. Classname '%s' does not implement GeoProviderInterface.", __CLASS__, $sProviderClassname));
         }
 
         return $oProvider;

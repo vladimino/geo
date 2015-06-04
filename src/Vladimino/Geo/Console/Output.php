@@ -11,13 +11,14 @@ namespace Vladimino\Geo\Console;
 class Output implements OutputInterface
 {
     /**
-     * Prints given message
+     * Prints given message according to environment
      *
      * @param string $sMessage
      */
     public static function printMessage($sMessage)
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Dirty check right from PHP documentation
+        if ('WIN' === strtoupper(substr(PHP_OS, 0, 3))) {
             WinOutput::printMessage($sMessage);
         } else {
             BashOutput::printMessage($sMessage);

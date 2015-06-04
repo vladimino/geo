@@ -7,8 +7,8 @@ use Vladimino\Geo\Entity\ResultCollection;
 use Vladimino\Geo\Service\ResultFactory;
 
 /**
+ * Class GoogleGeoProvider
  * GeoProviderInterface implementation for Google Geocoding API provider.
- *
  *
  * @url https://developers.google.com/maps/documentation/geocoding/
  * @package Vladimino\Geo\Provider
@@ -37,10 +37,12 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
+     * Implements main GeoProvider method
+     *
      * @param string $sLocation String to geocode.
      *
      * @return \Vladimino\Geo\Entity\ResultCollection|null
-     * @throws \Exception if query was not executed properly
+     * @throws \Exception if query was not executed properly.
      */
     public function getResultsByLocation($sLocation)
     {
@@ -66,13 +68,14 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
+     * Makes the query and process the response.
+     *
      * @return array|null
-     * @throws \RuntimeException if response is empty
-     * @throws \InvalidArgumentException if API key is invalid
-     * @throws \RuntimeException if daily quota is exceeded
-     * @throws \RuntimeException if status is wrong or no results found
+     * @throws \RuntimeException if response is empty.
+     * @throws \InvalidArgumentException if API key is invalid.
+     * @throws \RuntimeException if daily quota is exceeded.
+     * @throws \RuntimeException if status is wrong or no results found.
      */
-
     private function executeQuery()
     {
         /** @var string $sUrl */
@@ -106,7 +109,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
-     * Build URL from config parameters and user input
+     * Builds an URL with config parameters and user input.
      *
      * @return string
      */
@@ -126,7 +129,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
-     * Convert Google Maps Result to Result object
+     * Converts Google Maps Result to Result object.
      *
      * @param array $aGoogleResult
      * @return \Vladimino\Geo\Entity\Result
@@ -149,7 +152,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
     }
 
     /**
-     * Walk through address components to extract an address
+     * Walks through address components to extract an address.
      *
      * @param array $aAddressComponents
      * @return array

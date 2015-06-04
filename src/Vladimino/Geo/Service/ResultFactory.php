@@ -10,15 +10,16 @@ use Vladimino\Geo\Entity\Result;
  * Creates Result object from given components
  *
  * @package Vladimino\Geo\Service
+ * @author vladimino
  */
 class ResultFactory
 {
 
     /**
-     * Creates a new Result Entiry object
+     * Creates a new Result Entity object
      *
      * @param array $components
-     * @return Result
+     * @return \Vladimino\Geo\Entity\Result
      */
     public static function make(array $components)
     {

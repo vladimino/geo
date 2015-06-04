@@ -121,6 +121,7 @@ class ResultCollection implements \Iterator, \JsonSerializable
      */
     public function jsonSerialize()
     {
+        /** @var array $aReturn */
         $aReturn = [
             "provider" => $this->sProvider,
             "location" => $this->sLocation,

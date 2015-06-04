@@ -11,24 +11,11 @@ namespace Vladimino\Geo\Console;
  */
 class BashOutput implements OutputInterface
 {
-
     /**
-     * Make string appearі in color
+     * Color escape codes
      *
-     * @param string $sMessage
-     * @param string $sColor
-     *
-     * @return string
+     * @var array
      */
-    public static function setColored($sMessage, $sColor)
-    {
-        if (!isset(self::$aColors[$sColor])) {
-            return $sMessage;
-        }
-
-        return "\033[" . self::$aColors[$sColor] . "m" . $sMessage . "\033[0m";
-    }
-
     private static $aColors = array(
         'black' => '0;30',
         'dark_gray' => '1;30',
@@ -59,7 +46,7 @@ class BashOutput implements OutputInterface
     }
 
     /**
-     * Escape templating cause Windows console does not support color output
+     * Escapes templating, cause Windows console does not support color output
      *
      * @param string $sMessage
      *
@@ -75,6 +62,23 @@ class BashOutput implements OutputInterface
             }
         }
         return $sMessage;
+    }
+
+    /**
+     * Makes string appears in color
+     *
+     * @param string $sMessage
+     * @param string $sColor
+     *
+     * @return string
+     */
+    public static function setColored($sMessage, $sColor)
+    {
+        if (!isset(self::$aColors[$sColor])) {
+            return $sMessage;
+        }
+
+        return "\033[" . self::$aColors[$sColor] . "m" . $sMessage . "\033[0m";
     }
 
 
