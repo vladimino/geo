@@ -52,9 +52,9 @@ does not have any built-in functions to work with YML. So when I was forced to c
 and [Symfony Component](http://symfony.com/doc/current/components/yaml/introduction.html) for me it was the easy one decision. 
 Especially if I anyway designed application structure with Packagist/Symfony Bundle suggested style and used Composer's functionality to autoload classes.
  
-I know there are some things that could be refactoring (personally me don't like GeoClient as it brakes Separation of Concerns principle and should be 
-split at least into 2 classes), somewhere chosen solutions looks like overhead, but I decided to stop trying to find a silver bullet and just let you 
-look at the result of my 2 days work. It could be improved for sure in next iterations, but I hope at least you've got the idea.
+I know there are some things that could be refactored (personally me don't like final GeoClient class as it brakes Separation of Concerns principle and should be 
+split at least into 2 classes), somewhere chosen solutions definitely looks like overhead. But I decided to stop trying to find a silver bullet, and just let you 
+look at the result of my 3 days work. It could be improved for sure in the next iterations, but I hope at least you've got an idea.
   
 Will wait for some criticism and/or (why not?) positive feedback. 
 
