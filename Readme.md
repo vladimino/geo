@@ -1,6 +1,8 @@
 # Tech Test from Itembase
 
-[![Join the chat at https://gitter.im/vladimino/geo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vladimino/geo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Comments are welcome! [![Join the chat at https://gitter.im/vladimino/geo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vladimino/geo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
 This is a test project within Itembase's technical recruiting process.
 
 ## Initial Specification
