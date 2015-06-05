@@ -60,8 +60,12 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
         /** @var array $aGoogleResult */
         foreach ($aGoogleResults as $aGoogleResult) {
             /** @var \Vladimino\Geo\Entity\Result $oResult */
-            $oResult = $this->convertResult($aGoogleResult);
-            $oCollection->addResult($oResult);
+            try {
+                $oResult = $this->convertResult($aGoogleResult);
+                $oCollection->addResult($oResult);
+            } catch (\Exception $e) {
+                throw new \Exception(sprintf("%s Error. %s", __CLASS__, $e->getMessage()));
+            }
         }
 
         return $oCollection;
@@ -76,7 +80,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
      * @throws \RuntimeException if daily quota is exceeded.
      * @throws \RuntimeException if status is wrong or no results found.
      */
-    private function executeQuery()
+    protected function executeQuery()
     {
         /** @var string $sUrl */
         $sUrl = $this->buildQueryUrl();
@@ -114,7 +118,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
      * @return string
      */
 
-    private function buildQueryUrl()
+    protected function buildQueryUrl()
     {
         /** @var string $sUrl */
         $sBaseUrl = $this->getConfig('url') . $this->getConfig('format');
@@ -134,10 +138,22 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
      * @param array $aGoogleResult
      * @return \Vladimino\Geo\Entity\Result
      */
-    private function convertResult(array $aGoogleResult)
+    public function convertResult(array $aGoogleResult)
     {
-        /** @var array $aAdress */
+        if(!isset($aGoogleResult['address_components'])){
+            throw new \InvalidArgumentException(sprintf('Wrong Google Result. Could not convert object without address components.'));
+        }
+
+        if(!isset($aGoogleResult['geometry'])){
+            throw new \InvalidArgumentException(sprintf('Wrong Google Result. Could not convert object without geometry information.'));
+        }
+
+        /** @var array $aAddress */
         $aAddress = $this->extractAddress($aGoogleResult['address_components']);
+
+        if(empty($aAddress['country']) || empty($aAddress['state'])  || empty($aAddress['city'])){
+            throw new \RuntimeException(sprintf('Conversion failed. Does Google changed something in API?'));
+        }
 
         /** @var array $aComponents */
         $aComponents = [
@@ -157,7 +173,7 @@ class GoogleGeoProvider extends BaseProvider implements GeoProviderInterface
      * @param array $aAddressComponents
      * @return array
      */
-    private function extractAddress(array $aAddressComponents)
+    public function extractAddress(array $aAddressComponents)
     {
         /** @var array $aAddress */
         $aAddress = [
