@@ -1,9 +1,6 @@
 # Tech Test from Itembase
 
-Comments are welcome! [![Join the chat at https://gitter.im/vladimino/geo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vladimino/geo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-
-This is a test project within Itembase's technical recruiting process.
+This is a toy project to get an expirience with command line applications.
 
 ## Initial Specification
 
@@ -27,40 +24,6 @@ The response should be unified, so the same structure no matter what provider wa
 * “latitude”
 
 API can return more than one result so you need to handle and display that as well.
-
-## Questions & Answers
-
-* *Can I change the way options are passed to application?* 
-    > **Itembase:** It is up to you, just mention this on notes.
-
-* *Could you please specify output format? May I use colorful console output?* 
-    > **Itembase:** It is up to you, do your best.
-
-* *Am I allowed to use any cool 3rd-party libraries for this project?* 
-    > **Itembase:** No, please use pure PHP, we want to see how you design the application.
-
-## Notes
-
-Well, if something returns to me with a comment "up to you", I always want to do everything maximal ideal and flexible.
-I guess it's called "perfectionism" :)
-
-So now you have pretty powerful command line tool with help, versioning, error handling, colorful output (in non-Windows environment), 
-simple configuring for new geolocation providers and few available output formats (human readable console and ready for machine processing json).
-Some PHPUnit tests are also present (unfortunately, had not enough time to cover all the code).
-
-And yes, I've changed the way in which arguments should be passed to the application into Unix conventions-style followed in PHP community (see **Usage** section).  
-  
-The only thing which I did against the rules is requiring `symfony/yaml` via `composer.json`. 
-The reason behind this is simple: I wanted to store provider's configurations in this simple and powerful format, but PHP
-does not have any built-in functions to work with YML. So when I was forced to choose between [PECL extension](https://pecl.php.net/package/yaml)
-and [Symfony Component](http://symfony.com/doc/current/components/yaml/introduction.html) for me it was the easy one decision. 
-Especially if I anyway designed application structure with Packagist/Symfony Bundle suggested style and used Composer's functionality to autoload classes.
- 
-I know there are some things that could be refactored (personally me don't like final GeoClient class as it brakes Separation of Concerns principle and should be 
-split at least into 2 classes), somewhere chosen solutions definitely looks like overhead. But I decided to stop trying to find a silver bullet, and just let you 
-look at the result of my 3 days work. It could be improved for sure in the next iterations, but I hope at least you've got an idea.
-  
-Will wait for some criticism and/or (why not?) positive feedback. 
 
 ## Requirements
 
