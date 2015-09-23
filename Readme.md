@@ -1,4 +1,4 @@
-# Tech Test from Itembase
+# Simple geolocation console app
 
 This is a toy project to get an expirience with command line applications.
 
